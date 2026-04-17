@@ -1,21 +1,19 @@
 import sys
+import numpy as np
+import pyqtgraph as pg
+import sympy as sp
 
-from app.qt_setup import prepare_qt_runtime
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton
 
-prepare_qt_runtime()
-
-from PySide6.QtWidgets import QApplication
-
-from app.ui import MainWindow
-
+from ui.main_window import MainWindow
 
 def main() -> int:
     app = QApplication(sys.argv)
     app.setApplicationName("OpenSourceMathGraph")
-
+    
     window = MainWindow()
-    window.show()
 
+    window.show()
     return app.exec()
 
 

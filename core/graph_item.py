@@ -3,15 +3,17 @@ import numpy as np
 import pyqtgraph as pg
 
 class GraphItem:
-    def __init__(self, item: object):
+    def __init__(self, item: object, raw_text="", expr=None, 
+                 curve=None, visible=True, color="blue", width=2, 
+                 line_style=Qt.PenStyle.SolidLine):
         self.item = item
-        self.raw_text = ""
-        self.expr = None
-        self.curve = None
-        self.visible = True
-        self.color = "blue"
-        self.width = 2
-        self.line_style = Qt.PenStyle.SolidLine
+        self.raw_text = raw_text
+        self.expr = expr
+        self.curve = curve
+        self.visible = visible
+        self.color = color
+        self.width = width
+        self.line_style = line_style
 
     # 그래프 아이템 생성
     def create_curve(self, plot_widget: pg.PlotWidget):

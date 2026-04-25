@@ -7,4 +7,4 @@ def parse_expression(text: str):
         expr = sp.simplify(text)
         return expr
     except Exception as e:
-        raise ParseError(str(e))
+        raise ParseError("수식 파싱 실패", original=e)

@@ -6,6 +6,8 @@ class ExpressionListPanel(QWidget):
     expression_changed = Signal(object, str)
     color_changed = Signal(object, str)
     visible_changed = Signal(object, bool)
+    delete_requested = Signal(object)
+
     def __init__(self):
         super().__init__()
         
@@ -34,6 +36,8 @@ class ExpressionListPanel(QWidget):
         expression_item.text_changed.connect(self.on_expression_changed)
         expression_item.color_changed.connect(self.on_color_changed)
         expression_item.visible_changed.connect(self.on_visible_changed)
+        expression_item.delete_requested.connect(self.on_delete_requested)
+
 
     # 수식이 변경 콜백
     def on_expression_changed(self, item: ExpressionItemWidget, text: str):
@@ -46,3 +50,7 @@ class ExpressionListPanel(QWidget):
     # 가시성 변경 콜백
     def on_visible_changed(self, item: ExpressionItemWidget, visible: bool):
         self.visible_changed.emit(item, visible)
+
+    # 삭제 요청 콜백
+    def on_delete_requested(self, item: ExpressionItemWidget):
+        self.delete_requested.emit(item)

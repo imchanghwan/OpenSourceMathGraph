@@ -39,6 +39,7 @@ class MainWindow(QMainWindow):
         self.expression_panel.expression_changed.connect(self.update_graph_expression)
         self.expression_panel.color_changed.connect(self.update_graph_color)
         self.expression_panel.visible_changed.connect(self.update_graph_visibility)
+        self.expression_panel.delete_requested.connect(self.remove_graph)
 
     def update_graph_expression(self, item: ExpressionItemWidget, text: str):
         graph_item = None
@@ -69,3 +70,9 @@ class MainWindow(QMainWindow):
         if item in self.graph_dict:
             graph_item = self.graph_dict[item]
             graph_item.set_visible(visible)
+
+    def remove_graph(self, item: ExpressionItemWidget):
+        if item in self.graph_dict:
+            graph_item = self.graph_dict[item]
+            graph_item.remove(self.graph_panel.plot_widget)
+            del self.graph_dict[item]

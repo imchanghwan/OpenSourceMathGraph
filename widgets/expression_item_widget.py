@@ -4,6 +4,7 @@ class ExpressionItemWidget(QWidget):
     text_changed = Signal(object, str)
     color_changed = Signal(object, str)
     visible_changed = Signal(object, bool)
+    delete_requested = Signal(object)
 
     def __init__(self):
         super().__init__()
@@ -27,8 +28,8 @@ class ExpressionItemWidget(QWidget):
 
         self.setLayout(layout)
 
-        # 콜백 연결
-        self.delete_button.clicked.connect(self.delete_self)
+        # 그래프 삭제 버튼 콜백 연결
+        self.delete_button.clicked.connect(self.delete)
 
         # 수식 입력 변경 시 text_changed 시그널 발신
         self.input_edit.textChanged.connect(
@@ -44,7 +45,8 @@ class ExpressionItemWidget(QWidget):
         self.visible_checkbox.stateChanged.connect(
             lambda state: self.visible_changed.emit(self, bool(state))
         )
-
-    def delete_self(self):
+    
+    def delete(self):
+        self.delete_requested.emit(self)
         self.setParent(None)
         self.deleteLater()

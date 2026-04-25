@@ -1,9 +1,10 @@
 import sympy as sp
 
+from errors.parse_error import ParseError
+
 def parse_expression(text: str):
     try:
         expr = sp.simplify(text)
         return expr
     except Exception as e:
-        print(f"수식 파싱 오류: {e}")
-        return None
+        raise ParseError(str(e))

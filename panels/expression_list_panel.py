@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton
 from widgets.expression_item_widget import ExpressionItemWidget
 from PySide6.QtCore import Signal
+from PySide6.QtGui import QColor
 
 class ExpressionListPanel(QWidget):
     expression_changed = Signal(object, str)
-    color_changed = Signal(object, str)
+    color_changed = Signal(object, QColor)
     visible_changed = Signal(object, bool)
     delete_requested = Signal(object)
 
@@ -44,7 +45,7 @@ class ExpressionListPanel(QWidget):
         self.expression_changed.emit(item, text)
 
     # 색상 변경 콜백
-    def on_color_changed(self, item: ExpressionItemWidget, color: str):
+    def on_color_changed(self, item: ExpressionItemWidget, color: QColor):
         self.color_changed.emit(item, color)
 
     # 가시성 변경 콜백

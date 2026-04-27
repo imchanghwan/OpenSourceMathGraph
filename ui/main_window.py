@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
+from PySide6.QtGui import QColor
 
 from core.graph_item import GraphItem
 from core.parser import parse_expression
@@ -37,25 +38,20 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(central)
 
-        graph_controller = GraphController(self.graph_panel)
+        self.graph_controller = GraphController(self.graph_panel)
 
-        self.expression_panel.expression_changed.connect(graph_controller.update_expression)
-        self.expression_panel.color_changed.connect(self.update_graph_color)
+        self.expression_panel.expression_changed.connect(self.graph_controller.update_expression)
+        self.expression_panel.color_changed.connect(self.graph_controller.update_color)
         self.expression_panel.visible_changed.connect(self.update_graph_visibility)
         self.expression_panel.delete_requested.connect(self.remove_graph)
 
-    def update_graph_color(self, item: ExpressionItemWidget, color: str):
-        if item in self.graph_dict:
-            graph_item = self.graph_dict[item]
-            graph_item.set_color(color)
-
     def update_graph_visibility(self, item: ExpressionItemWidget, visible: bool):
         if item in self.graph_dict:
-            graph_item = self.graph_dict[item]
+            graph_item: GraphItem = self.graph_dict[item]
             graph_item.set_visible(visible)
 
     def remove_graph(self, item: ExpressionItemWidget):
         if item in self.graph_dict:
-            graph_item = self.graph_dict[item]
+            graph_item: GraphItem = self.graph_dict[item]
             graph_item.remove(self.graph_panel.plot_widget)
             del self.graph_dict[item]

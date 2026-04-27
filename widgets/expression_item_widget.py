@@ -1,8 +1,10 @@
-from PySide6.QtWidgets import QCheckBox, QWidget, QHBoxLayout, QLineEdit, QPushButton, QLabel
+from PySide6.QtWidgets import QCheckBox, QWidget, QHBoxLayout, QLineEdit, QPushButton, QColorDialog
 from PySide6.QtCore import Signal
+from PySide6.QtGui import QColor
+
 class ExpressionItemWidget(QWidget):
     text_changed = Signal(object, str)
-    color_changed = Signal(object, str)
+    color_changed = Signal(object, QColor)
     visible_changed = Signal(object, bool)
     delete_requested = Signal(object)
 
@@ -37,9 +39,7 @@ class ExpressionItemWidget(QWidget):
         )
     
         # 색상 버튼과 가시성 체크박스 콜백 연결
-        self.color_button.clicked.connect(
-            lambda: self.color_changed.emit(self, "red")  # 예시로 빨간색 고정
-        )
+        self.color_button.clicked.connect(self.choose_color)
 
         # 가시성 체크박스 상태 변경 시 visible_changed 시그널 발신
         self.visible_checkbox.stateChanged.connect(
@@ -50,3 +50,10 @@ class ExpressionItemWidget(QWidget):
         self.delete_requested.emit(self)
         self.setParent(None)
         self.deleteLater()
+
+    def choose_color(self):
+        color = QColorDialog.getColor()
+
+        if color.isValid():
+            self.current_color = color
+            self.color_changed.emit(self, color)

@@ -1,10 +1,11 @@
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
 import numpy as np
 import pyqtgraph as pg
 
 class GraphItem:
     def __init__(self, item: object, raw_text="", expr=None, 
-                 curve=None, visible=True, color="blue", width=2, 
+                 curve=None, visible=True, color=QColor("blue"), width=2, 
                  line_style=Qt.PenStyle.SolidLine):
         self.item = item
         self.raw_text = raw_text
@@ -32,8 +33,9 @@ class GraphItem:
     def apply_style(self):
         if self.curve is None:
             return
-        
-        pen = pg.mkPen(color=self.color, width=self.width, style=self.line_style)
+        pen = pg.mkPen(color=(self.color.red(), self.color.green(), self.color.blue()), 
+                       width=self.width, 
+                       style=self.line_style)
         self.curve.setPen(pen)
 
     def set_visible(self, visible: bool):
@@ -41,19 +43,22 @@ class GraphItem:
         if self.curve is not None:
             self.curve.setVisible(visible)
 
-    def set_color(self, color):
+    def set_color(self, color: QColor):
         self.color = color
-        self.apply_style()
+        if self.curve is not None:
+            self.apply_style()
 
     def set_width(self, width: int):
         self.width = width
-        self.apply_style()
+        if self.curve is not None:
+            self.apply_style()
 
     def set_line_style(self, style: Qt.PenStyle):
         self.line_style = style
-        self.apply_style()
+        if self.curve is not None:
+            self.apply_style()
 
     def remove(self, plot_widget: pg.PlotWidget):
+        plot_widget.removeItem(self.curve)
         if self.curve is not None:
-            plot_widget.removeItem(self.curve)
             self.curve = None

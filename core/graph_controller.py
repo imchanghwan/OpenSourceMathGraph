@@ -1,3 +1,4 @@
+from PySide6.QtGui import QColor
 from core.parser import parse_expression
 from core.graph_engine import build_graph_data
 from core.graph_item import GraphItem
@@ -39,6 +40,14 @@ class GraphController:
             print(e)
             return
         
+    def update_color(self, item: ExpressionItemWidget, color: QColor):
+        graph_item = None
+        item_id = id(item)
+        if item_id not in    self.graph_dict:
+            return
+            
+        graph_item: GraphItem = self.graph_dict[item_id]
+        graph_item.set_color(color)
 
     def _handle_error(self, error):
         if isinstance(error, ParseError):

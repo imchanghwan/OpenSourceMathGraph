@@ -1,18 +1,20 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton
-from widgets.expression_item_widget import ExpressionItemWidget
+from ui.expression_item_widget import ExpressionItemWidget
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QColor
+import uuid
 
 class ExpressionListPanel(QWidget):
-    expression_changed = Signal(object, str)
-    color_changed = Signal(object, QColor)
-    visible_changed = Signal(object, bool)
-    delete_requested = Signal(object)
+    item_added = Signal(str)                    # id
+    item_removed = Signal(str)                  # id
+    expression_changed = Signal(str, str)       # (id, text)
+    color_changed = Signal(str, QColor)         # (id, color)
+    visible_changed = Signal(str, bool)         # (id, visible)
 
     def __init__(self):
         super().__init__()
         
-        self.items: list[ExpressionItemWidget] = []
+        self.items: dict[str, ExpressionItemWidget] = {} # id -> widget
 
         # 레이아웃, 추가 버튼
         self.layout = QVBoxLayout()
@@ -29,29 +31,21 @@ class ExpressionListPanel(QWidget):
         self.add_expression_item()
 
     def add_expression_item(self):
-        expression_item = ExpressionItemWidget()
-        self.items.append(expression_item)
+        item_id = str(uuid.uuid4())
+        widget = ExpressionItemWidget()  # item_id 제거
+        self.items[item_id] = widget
         
-        self.layout.insertWidget(self.layout.count() - 1, expression_item)
-
-        expression_item.text_changed.connect(self.on_expression_changed)
-        expression_item.color_changed.connect(self.on_color_changed)
-        expression_item.visible_changed.connect(self.on_visible_changed)
-        expression_item.delete_requested.connect(self.on_delete_requested)
-
-
-    # 수식이 변경 콜백
-    def on_expression_changed(self, item: ExpressionItemWidget, text: str):
-        self.expression_changed.emit(item, text)
-
-    # 색상 변경 콜백
-    def on_color_changed(self, item: ExpressionItemWidget, color: QColor):
-        self.color_changed.emit(item, color)
-
-    # 가시성 변경 콜백
-    def on_visible_changed(self, item: ExpressionItemWidget, visible: bool):
-        self.visible_changed.emit(item, visible)
-
-    # 삭제 요청 콜백
-    def on_delete_requested(self, item: ExpressionItemWidget):
-        self.delete_requested.emit(item)
+        self.layout.insertWidget(self.layout.count() - 1, widget)
+        
+        widget.text_changed.connect(lambda text, i=item_id: self.expression_changed.emit(i, text))
+        widget.color_changed.connect(lambda color, i=item_id: self.color_changed.emit(i, color))
+        widget.visible_changed.connect(lambda visible, i=item_id: self.visible_changed.emit(i, visible))
+        widget.delete_requested.connect(lambda i=item_id: self.remove_expression_item(i))
+        
+        self.item_added.emit(item_id)
+            
+    def remove_expression_item(self, item_id: str):
+        widget = self.items.pop(item_id)  # dict에서 제거
+        self.layout.removeWidget(widget)
+        widget.deleteLater()              # Qt 메모리 해제
+        self.item_removed.emit(item_id)

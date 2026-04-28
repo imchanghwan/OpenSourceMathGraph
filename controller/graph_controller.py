@@ -1,43 +1,34 @@
 from PySide6.QtGui import QColor
-from core.parser import parse_expression
-from core.graph_engine import build_graph_data
-from core.graph_item import GraphItem
-from widgets.expression_item_widget import ExpressionItemWidget
-from errors.parse_error import ParseError
-from panels.graph_panel import GraphPanel
+from ui.graph_panel import GraphPanel
+from graph.graph_item import GraphItem
 
 class GraphController:
     def __init__(self, graph_panel: GraphPanel):
         self.graph_panel = graph_panel
-        self.graph_dict: dict[str, GraphItem] = {}
+        self.items: dict[str, GraphItem] = {}
+    
+    def on_item_added(self, item_id: str):
+        self.items[item_id] = GraphItem()
 
-    def _get_or_create(self, item) -> GraphItem:
-        item_id = id(item)
+    def on_expression_changed(self, item_id: str, text: str):
+        if item_id not in self.items:
+            self.items[item_id] = GraphItem()
 
-        graph_item = self.graph_dict.get(item_id)
-        if graph_item is None:
-            graph_item = GraphItem(item)
-            self.graph_dict[item_id] = graph_item
+        self.items[item_id].update_from_text(text)
 
-        return graph_item
+        if self.items[item_id].is_valid:
+            self.graph_panel.update_plot(item_id, self.items[item_id])
+        else:
+            self.graph_panel.remove_plot(item_id)  # 잘못된 수식이면 그래프 제거
 
-    def update_graph(self, item: ExpressionItemWidget, text: str):
-        graph_item = self._get_or_create(item)
-        graph_item.update_from_text(text)
-        
-    def update_color(self, item: ExpressionItemWidget, color: QColor):
-        graph_item = self._get_or_create(item)
-        graph_item.set_color(color)
+    def on_color_changed(self, item_id: str, color: QColor):
+        self.items[item_id].color = color
+        self.graph_panel.apply_style(item_id, self.items[item_id])
 
-    def update_visible(self, item: ExpressionItemWidget, visible: bool) -> None:
-        graph_item = self._get_or_create(item)
-        graph_item.set_visible(visible)
+    def on_visible_changed(self, item_id: str, visible: bool):
+        self.items[item_id].visible = visible
+        self.graph_panel.set_visible(item_id, visible)
 
-    def remove(self, item: ExpressionItemWidget):
-        item_id = id(item)
-
-        graph_item = self.graph_dict.pop(item_id, None)
-        if graph_item is None:
-            return
-
-        graph_item.remove(self.graph_panel.plot_widget)
+    def on_item_removed(self, item_id: str):
+        self.graph_panel.remove_plot(item_id)
+        del self.items[item_id]

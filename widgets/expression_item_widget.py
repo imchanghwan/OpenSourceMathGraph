@@ -54,6 +54,8 @@ class ExpressionItemWidget(QWidget):
     def choose_color(self):
         color = QColorDialog.getColor()
 
-        if color.isValid():
-            self.current_color = color
-            self.color_changed.emit(self, color)
+        if not color.isValid():
+            return
+        
+        self.current_color = color
+        self.color_changed.emit(self, color)

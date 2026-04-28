@@ -40,13 +40,7 @@ class MainWindow(QMainWindow):
 
         self.graph_controller = GraphController(self.graph_panel)
 
-        self.expression_panel.expression_changed.connect(self.graph_controller.update_expression)
+        self.expression_panel.expression_changed.connect(self.graph_controller.update_graph)
         self.expression_panel.color_changed.connect(self.graph_controller.update_color)
         self.expression_panel.visible_changed.connect(self.graph_controller.update_visible)
-        self.expression_panel.delete_requested.connect(self.remove_graph)
-
-    def remove_graph(self, item: ExpressionItemWidget):
-        if item in self.graph_dict:
-            graph_item: GraphItem = self.graph_dict[item]
-            graph_item.remove(self.graph_panel.plot_widget)
-            del self.graph_dict[item]
+        self.expression_panel.delete_requested.connect(self.graph_controller.remove)

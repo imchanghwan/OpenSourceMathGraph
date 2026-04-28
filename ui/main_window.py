@@ -1,13 +1,13 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
 from PySide6.QtGui import QColor
 
-from core.graph_item import GraphItem
-from core.parser import parse_expression
-from core.graph_engine import build_graph_data
-from panels.expression_list_panel import ExpressionListPanel
-from panels.graph_panel import GraphPanel
-from widgets.expression_item_widget import ExpressionItemWidget
-from core.graph_controller import GraphController
+from graph.graph_item import GraphItem
+from parser.parser import parse_expression
+from graph.graph_engine import build_graph_data
+from ui.expression_list_panel import ExpressionListPanel
+from ui.graph_panel import GraphPanel
+from ui.expression_item_widget import ExpressionItemWidget
+from controller.graph_controller import GraphController
 
 
 class MainWindow(QMainWindow):

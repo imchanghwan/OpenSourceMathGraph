@@ -1,3 +1,3 @@
 from errors.base_error import BaseError
-class ParseError(BaseError):
+class BuildError(BaseError):
     pass

@@ -11,16 +11,18 @@ class GraphController:
         self.graph_panel = graph_panel
         self.graph_dict: dict[str, GraphItem] = {}
 
-    def create_graph(self, item: ExpressionItemWidget, text: str) -> GraphItem:
-        graph_item = None
-        item_id = id(item)
-        if item_id not in self.graph_dict:
-            graph_item = GraphItem(item)
-            graph_item.raw_text = text
-            self.graph_dict[item_id] = graph_item
-        else:
-            graph_item = self.graph_dict[item_id]
+    def _require_graph_item(self, item: ExpressionItemWidget) -> GraphItem:
+        try:
+            return self.graph_dict[id(item)]
+        except KeyError:
+            raise ValueError("GraphItem not found for given item")
 
+    def create_graph(self, item: ExpressionItemWidget, text: str) -> GraphItem:
+        item_id = id(item)
+
+        graph_item = self.graph_dict.setdefault(item_id, GraphItem(item))
+        graph_item.raw_text = text
+        
         return graph_item
         
 
@@ -41,13 +43,15 @@ class GraphController:
             return
         
     def update_color(self, item: ExpressionItemWidget, color: QColor):
-        graph_item = None
-        item_id = id(item)
-        if item_id not in    self.graph_dict:
-            return
-            
-        graph_item: GraphItem = self.graph_dict[item_id]
+        graph_item = self._require_graph_item(item)
         graph_item.set_color(color)
+
+    def update_visible(self, item: ExpressionItemWidget, visible: bool) -> None:
+        graph_item = self._require_graph_item(item)
+        graph_item.set_visible(visible)
+
+    def remove(self, item: ExpressionItemWidget):
+        pass
 
     def _handle_error(self, error):
         if isinstance(error, ParseError):

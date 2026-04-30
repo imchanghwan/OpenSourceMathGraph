@@ -161,22 +161,20 @@ class Window(QMainWindow):
         row_widget.setProperty("selected", False)
         row_widget.mousePressEvent = lambda event: self.select_formula_row(row_widget)
 
-        row_layout = QVBoxLayout(row_widget)
-        row_layout.setContentsMargins(0, 0, 0, 12)
-        row_layout.setSpacing(0)
-
-        input_layout = QHBoxLayout()
-        input_layout.setContentsMargins(0, 0, 0, 0)
-        input_layout.setSpacing(0)
-
-        option_layout = QHBoxLayout()
-        option_layout.setContentsMargins(36, 9, 10, 0)
-        option_layout.setSpacing(12)
+        row_layout = QHBoxLayout(row_widget)
+        row_layout.setContentsMargins(8, 0, 8, 0)
+        row_layout.setSpacing(10)
 
         row_number = QLabel(str(len(self.formula_rows) + 1), row_widget)
         row_number.setObjectName("row_number")
-        row_number.setFixedSize(36, 76)
-        row_number.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        row_number.setFixedSize(38, 38)
+        row_number.setAlignment(Qt.AlignCenter)
+
+        color_button = QPushButton("", row_widget)
+        color_button.setObjectName("color_button")
+        color_button.setFixedSize(38, 38)
+        color_button.clicked.connect(lambda: self.change_row_color(row_widget))
+        self.apply_color_button_style(color_button, color)
 
         line_edit = QLineEdit(row_widget)
         line_edit.setObjectName("formula_input")
@@ -187,34 +185,23 @@ class Window(QMainWindow):
             lambda text: self.emit_formula_changed(row_widget, text)
         )
 
-        color_button = QPushButton("색상", row_widget)
-        color_button.setObjectName("color_button")
-        color_button.setFixedSize(138, 44)
-        color_button.clicked.connect(lambda: self.change_row_color(row_widget))
-        self.apply_color_button_style(color_button, color)
+        remove_button = QPushButton("X", row_widget)
+        remove_button.setFixedSize(38, 38)
+        remove_button.clicked.connect(lambda: self.remove_formula_row(row_widget))
 
         visible_check = QCheckBox("표시", row_widget)
         visible_check.setObjectName("visible_check")
         visible_check.setChecked(True)
-        visible_check.setFixedSize(96, 44)
+        visible_check.setFixedSize(70, 76)
         visible_check.stateChanged.connect(
             lambda state: self.emit_visibility_changed(row_widget, state)
         )
 
-        remove_button = QPushButton("X", row_widget)
-        remove_button.setFixedSize(52, 76)
-        remove_button.clicked.connect(lambda: self.remove_formula_row(row_widget))
-
-        input_layout.addWidget(row_number)
-        input_layout.addWidget(line_edit)
-        input_layout.addWidget(remove_button)
-
-        option_layout.addWidget(color_button)
-        option_layout.addWidget(visible_check)
-        option_layout.addStretch(1)
-
-        row_layout.addLayout(input_layout)
-        row_layout.addLayout(option_layout)
+        row_layout.addWidget(row_number)
+        row_layout.addWidget(color_button)
+        row_layout.addWidget(line_edit)
+        row_layout.addWidget(remove_button)
+        row_layout.addWidget(visible_check)
 
         self.formulaRowsLayout.insertWidget(self.formulaRowsLayout.count() - 1, row_widget)
         row_data = {
@@ -278,13 +265,11 @@ class Window(QMainWindow):
         button.setStyleSheet(
             "QPushButton {"
             " border: 1px solid #a8a8a8;"
-            " border-radius: 3px;"
-            f" border-left: 10px solid {color.name()};"
-            " background-color: #f7f7f7;"
-            " color: #000000;"
-            " padding: 7px 12px;"
-            " font-size: 16px;"
+            " border-radius: 4px;"
+            f" background-color: {color.name()};"
+            " padding: 0px;"
             "}"
+            "QPushButton:hover { border: 2px solid #333333; }"
         )
 
     def emit_formula_changed(self, row_widget, text):

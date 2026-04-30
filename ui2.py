@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtWidgets import (
     QApplication,
@@ -13,23 +13,33 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton,
     QSizePolicy,
-    QSpacerItem,
     QVBoxLayout,
     QWidget,
 )
 
 
+class GraphRowWidget(QWidget):
+    def __init__(self, formula, color, parent=None):
+        super().__init__(parent)
+        self.formula = formula
+        self.graph_color = color
+
+
 class Window(QMainWindow):
+    graph_color_changed = pyqtSignal(int, str)
+
     def __init__(self):
         super().__init__()
 
         self.default_graph_color = QColor("#000000")
+        self.current_graph_color = QColor(self.default_graph_color)
         self.formula_rows = []
+        self.selected_formula_row = None
         self.graph_widget = None
 
         self.setup_ui()
         self.btn_add_formula.clicked.connect(self.add_formula_row)
-        self.add_formula_row()
+        self.btn_change_color.clicked.connect(self.change_current_color)
 
     def setup_ui(self):
         self.setWindowTitle("Math Graph")
@@ -50,12 +60,13 @@ class Window(QMainWindow):
 
         self.left_layout = QVBoxLayout(self.left_panel)
         self.left_layout.setContentsMargins(0, 0, 0, 0)
-        self.left_layout.setSpacing(24)
+        self.left_layout.setSpacing(18)
 
-        self.btn_add_formula = QPushButton("수식 추가", self.left_panel)
-        self.btn_add_formula.setObjectName("btn_add_formula")
-        self.btn_add_formula.setMinimumHeight(36)
-        self.left_layout.addWidget(self.btn_add_formula)
+        self.formula_input = QLineEdit(self.left_panel)
+        self.formula_input.setObjectName("formula_input")
+        self.formula_input.setMinimumHeight(54)
+        self.formula_input.setPlaceholderText("수식을 입력하세요. 예: x**2")
+        self.left_layout.addWidget(self.formula_input)
 
         self.formula_area = QWidget(self.left_panel)
         self.formulaRowsLayout = QVBoxLayout(self.formula_area)
@@ -64,6 +75,23 @@ class Window(QMainWindow):
         self.formulaRowsLayout.addStretch(1)
         self.left_layout.addWidget(self.formula_area)
         self.left_layout.addStretch(1)
+
+        self.bottom_controls = QWidget(self.left_panel)
+        self.bottom_controls_layout = QVBoxLayout(self.bottom_controls)
+        self.bottom_controls_layout.setContentsMargins(0, 0, 0, 0)
+        self.bottom_controls_layout.setSpacing(10)
+
+        self.btn_add_formula = QPushButton("수식 추가", self.bottom_controls)
+        self.btn_add_formula.setObjectName("btn_add_formula")
+        self.btn_add_formula.setMinimumHeight(38)
+
+        self.btn_change_color = QPushButton("색상 변경", self.bottom_controls)
+        self.btn_change_color.setObjectName("btn_change_color")
+        self.btn_change_color.setMinimumHeight(38)
+
+        self.bottom_controls_layout.addWidget(self.btn_add_formula)
+        self.bottom_controls_layout.addWidget(self.btn_change_color)
+        self.left_layout.addWidget(self.bottom_controls)
 
         self.graph_container = QFrame(self.centralwidget)
         self.graph_container.setObjectName("graph_container")
@@ -116,6 +144,16 @@ class Window(QMainWindow):
                 color: #000000;
                 spacing: 6px;
             }
+            QLabel#graph_formula_label {
+                color: #111111;
+                padding-left: 4px;
+            }
+            QWidget#graph_row {
+                background-color: transparent;
+            }
+            QWidget#graph_row[selected="true"] {
+                background-color: #e8f3ff;
+            }
             #graph_container,
             #graph_placeholder {
                 background-color: #000000;
@@ -124,81 +162,109 @@ class Window(QMainWindow):
         )
 
     def add_formula_row(self):
-        row_widget = QWidget(self.formula_area)
+        formula = self.formula_input.text().strip()
+        if not formula:
+            self.formula_input.setFocus()
+            return
+
+        color = QColor(self.current_graph_color)
+        row_widget = GraphRowWidget(formula, color, self.formula_area)
+        row_widget.setObjectName("graph_row")
+        row_widget.setProperty("selected", False)
+        row_widget.mousePressEvent = lambda event: self.select_formula_row(row_widget)
+
         row_layout = QHBoxLayout(row_widget)
         row_layout.setContentsMargins(0, 0, 0, 0)
         row_layout.setSpacing(10)
 
-        color_button = QPushButton(row_widget)
-        color_button.setFixedSize(120, 36)
-        color_button.setProperty("graph_color", self.default_graph_color.name())
-        color_button.clicked.connect(lambda: self.change_row_color(color_button))
-        self.apply_color_button_style(color_button, self.default_graph_color)
+        color_marker = QFrame(row_widget)
+        color_marker.setObjectName("color_marker")
+        color_marker.setFixedSize(16, 16)
+        color_marker.setStyleSheet(
+            f"background-color: {color.name()}; border: 1px solid #777777;"
+        )
 
-        line_edit = QLineEdit(row_widget)
-        line_edit.setObjectName("formula_input")
-        line_edit.setFixedSize(78, 36)
-        line_edit.setPlaceholderText("예: x**2")
-
-        remove_button = QPushButton("X", row_widget)
-        remove_button.setFixedSize(120, 36)
-        remove_button.clicked.connect(lambda: self.remove_formula_row(row_widget))
+        formula_label = QLabel(formula, row_widget)
+        formula_label.setObjectName("graph_formula_label")
+        formula_label.setMinimumHeight(30)
+        formula_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         visible_check = QCheckBox("표시", row_widget)
         visible_check.setObjectName("visible_check")
         visible_check.setChecked(True)
 
-        row_layout.addWidget(color_button)
-        row_layout.addWidget(line_edit)
-        row_layout.addWidget(remove_button)
+        remove_button = QPushButton("X", row_widget)
+        remove_button.setFixedSize(42, 30)
+        remove_button.clicked.connect(lambda: self.remove_formula_row(row_widget))
+
         row_layout.addWidget(visible_check)
-        row_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        row_layout.addWidget(color_marker)
+        row_layout.addWidget(formula_label)
+        row_layout.addWidget(remove_button)
 
         self.formulaRowsLayout.insertWidget(self.formulaRowsLayout.count() - 1, row_widget)
-        self.formula_rows.append(
-            {
-                "widget": row_widget,
-                "line_edit": line_edit,
-                "visible_check": visible_check,
-                "color_button": color_button,
-            }
-        )
-        line_edit.setFocus()
+        row_data = {
+            "widget": row_widget,
+            "formula": formula,
+            "formula_label": formula_label,
+            "visible_check": visible_check,
+            "color": color.name(),
+            "color_marker": color_marker,
+        }
+        self.formula_rows.append(row_data)
+        self.select_formula_row(row_widget)
+
+        self.formula_input.clear()
+        self.formula_input.setFocus()
+
+    def select_formula_row(self, row_widget):
+        self.selected_formula_row = row_widget
+
+        for row in self.formula_rows:
+            is_selected = row["widget"] is row_widget
+            row["widget"].setProperty("selected", is_selected)
+            row["widget"].style().unpolish(row["widget"])
+            row["widget"].style().polish(row["widget"])
 
     def remove_formula_row(self, row_widget):
         if len(self.formula_rows) <= 1:
             return
 
+        removed_row_was_selected = self.selected_formula_row is row_widget
         self.formula_rows = [
             row for row in self.formula_rows if row["widget"] is not row_widget
         ]
         row_widget.setParent(None)
         row_widget.deleteLater()
 
-    def change_row_color(self, button):
-        current_color = QColor(button.property("graph_color") or self.default_graph_color)
-        color = QColorDialog.getColor(current_color, self, "그래프 색상")
+        if removed_row_was_selected:
+            self.select_formula_row(self.formula_rows[-1]["widget"])
+
+    def change_current_color(self):
+        color = QColorDialog.getColor(self.current_graph_color, self, "그래프 색상")
 
         if not color.isValid():
             return
 
-        button.setProperty("graph_color", color.name())
-        self.apply_color_button_style(button, color)
+        self.current_graph_color = QColor(color)
 
-    def apply_color_button_style(self, button, color):
-        color_name = color.name()
-        button.setText("●")
-        button.setStyleSheet(
-            "QPushButton {"
-            " border: 1px solid #b2b2b2;"
-            " border-radius: 3px;"
-            " background-color: #f7f7f7;"
-            f" color: {color_name};"
-            " font-size: 24px;"
-            " padding-bottom: 3px;"
-            "}"
-            "QPushButton:hover { background-color: #ffffff; }"
+        selected_index = self.selected_formula_row_index()
+        if selected_index < 0:
+            return
+
+        row = self.formula_rows[selected_index]
+        row["color"] = color.name()
+        row["widget"].graph_color = QColor(color)
+        row["color_marker"].setStyleSheet(
+            f"background-color: {color.name()}; border: 1px solid #777777;"
         )
+        self.graph_color_changed.emit(selected_index, color.name())
+
+    def selected_formula_row_index(self):
+        for index, row in enumerate(self.formula_rows):
+            if row["widget"] is self.selected_formula_row:
+                return index
+        return -1
 
     def set_graph_widget(self, widget):
         if self.graph_widget is not None:
@@ -213,7 +279,7 @@ class Window(QMainWindow):
     def formula_settings(self):
         settings = []
         for row in self.formula_rows:
-            formula = row["line_edit"].text().strip()
+            formula = row["formula"].strip()
             if not formula:
                 continue
 
@@ -221,7 +287,7 @@ class Window(QMainWindow):
                 {
                     "formula": formula,
                     "visible": row["visible_check"].isChecked(),
-                    "color": row["color_button"].property("graph_color"),
+                    "color": row["color"],
                 }
             )
         return settings

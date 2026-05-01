@@ -2,14 +2,15 @@ from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
 from ui.expression_list_panel import ExpressionListPanel
 from ui.graph_panel import GraphPanel
 from controller.graph_controller import GraphController
-
+from utils.screen_utils import setup_screen
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("Math Graph")
-        self.resize(1280, 720)
+        # self.resize(1280, 720)
+        setup_screen(self)
 
         # 중앙 위젯 (필수)
         central = QWidget()

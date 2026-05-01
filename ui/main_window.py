@@ -31,10 +31,4 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(central)
 
-        self.graph_controller = GraphController(self.graph_panel)
-
-        self.expression_panel.item_added.connect(self.graph_controller.on_item_added)
-        self.expression_panel.item_removed.connect(self.graph_controller.on_item_removed)
-        self.expression_panel.expression_changed.connect(self.graph_controller.on_expression_changed)
-        self.expression_panel.color_changed.connect(self.graph_controller.on_color_changed)
-        self.expression_panel.visible_changed.connect(self.graph_controller.on_visible_changed)
+        self.graph_controller = GraphController(self.graph_panel, self.expression_panel)

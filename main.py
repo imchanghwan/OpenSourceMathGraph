@@ -1,7 +1,10 @@
 import sys
 
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QFile
 from PySide6.QtWidgets import QApplication
 from ui.main_window import MainWindow
+
 
 def main() -> int:
     app = QApplication(sys.argv)

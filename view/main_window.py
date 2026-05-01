@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
-from ui.expression_list_panel import ExpressionListPanel
-from ui.graph_panel import GraphPanel
+from view.expression_list_panel import ExpressionListPanel
+from view.graph_panel import GraphPanel
 from controller.graph_controller import GraphController
 from utils.screen_utils import setup_screen
 

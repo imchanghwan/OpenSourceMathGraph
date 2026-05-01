@@ -1,7 +1,7 @@
 import pyqtgraph as pg
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSizePolicy
 from PySide6.QtCore import Qt
-from graph.graph_item import GraphItem
+from model.graph_item import GraphItem
 
 class GraphPanel(QWidget):
     def __init__(self):

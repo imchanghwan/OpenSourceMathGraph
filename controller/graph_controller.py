@@ -1,7 +1,7 @@
 from PySide6.QtGui import QColor
-from ui.expression_list_panel import ExpressionListPanel
-from ui.graph_panel import GraphPanel
-from graph.graph_item import GraphItem
+from view.expression_list_panel import ExpressionListPanel
+from view.graph_panel import GraphPanel
+from model.graph_item import GraphItem
 
 class GraphController:
     def __init__(self, graph_panel: GraphPanel, expression_panel: ExpressionListPanel):

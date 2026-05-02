@@ -19,7 +19,7 @@ jobs:
           python-version: "3.11"
 
       - name: 패키지 설치
-        run: pip install PySide6 pyinstaller
+        run: pip install -r requirements.txt
 
       - name: EXE 빌드
         run: |

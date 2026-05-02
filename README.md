@@ -47,9 +47,9 @@ GraphItem          GraphPanel
 
 | 클래스 | 책임 |
 | --- | --- |
-| `ExpressionItemWidget` | 입력 UI, id 모름, 데이터만 Signal 발신 |
+| `ExpressionItemWidget` | 입력 UI, 데이터만 Signal 발신 |
 | `ExpressionListPanel` | Widget 리스트 관리, id 생성, id 붙여서 Signal 중계 |
 | `MainWindow` | Panel/Controller 생성, Signal 연결 |
-| `GraphController` | id로 GraphItem 관리, 중재자 |
-| `GraphItem` | 수식 파싱 + x/y 계산, UI 완전 무관 |
+| `GraphController` | id로 GraphItem 관리 |
+| `GraphItem` | 수식 파싱 + x/y 계산 |
 | `GraphPanel` | id 기반 curve 관리, 렌더링 |

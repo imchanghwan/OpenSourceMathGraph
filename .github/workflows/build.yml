@@ -1,0 +1,37 @@
+# .github/workflows/build.yml
+name: Build EXE
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest          # Microsoft Windows 서버에서 빌드
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 패키지 설치
+        run: pip install PySide6 pyinstaller
+
+      - name: EXE 빌드
+        run: |
+          pyinstaller --onefile --windowed `
+            --add-data "ui/math_graph.ui;." `
+            --hidden-import PySide6.QtXml `
+            --name "MathGraph" `
+            main.py
+
+      - name: 빌드 결과물 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: MathGraph-Windows
+          path: dist/MathGraph.exe
+          retention-days: 7          # 7일간 다운로드 가능

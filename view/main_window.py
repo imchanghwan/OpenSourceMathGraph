@@ -1,34 +1,41 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
+from PySide6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget
 from view.expression_list_panel import ExpressionListPanel
 from view.graph_panel import GraphPanel
 from controller.graph_controller import GraphController
 from utils.screen_utils import setup_screen
+from PySide6.QtGui import QFont
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, ui: QMainWindow):
         super().__init__()
 
-        self.setWindowTitle("Math Graph")
-        # self.resize(1280, 720)
+        self.ui = ui
+        self._setup_ui()
+
         setup_screen(self)
 
-        # 중앙 위젯 (필수)
-        central = QWidget()
-
-        # 레이아웃
-        layout = QHBoxLayout()
-
-        self.expression_panel = ExpressionListPanel()
-        self.graph_panel = GraphPanel()
-
-        layout.addWidget(self.expression_panel)
-        layout.addWidget(self.graph_panel)
-
-        layout.setStretch(0, 1)
-        layout.setStretch(1, 3)
-
-        central.setLayout(layout)
-
+        central: QWidget = self.ui.centralWidget()
         self.setCentralWidget(central)
 
+        add_button = central.findChild(QPushButton, "btn_add_expression")
+        expression_area = central.findChild(QWidget, "expression_area")
+        expression_layout: QVBoxLayout = expression_area.layout()
+
+        graph_placeholder = central.findChild(QLabel, "graph_placeholder")
+        graph_container = central.findChild(QWidget, "graph_container")
+        graph_layout: QVBoxLayout = graph_container.layout()
+
+        self.expression_panel = ExpressionListPanel(add_button, expression_layout)
+        self.graph_panel = GraphPanel()
+
+        graph_placeholder.hide()
+        graph_layout.addWidget(self.graph_panel)
+
         self.graph_controller = GraphController(self.graph_panel, self.expression_panel)
+
+    def _setup_ui(self):
+        self.setWindowTitle(self.ui.windowTitle())
+        self.resize(self.ui.size())
+        self.setMinimumSize(self.ui.minimumSize())
+        self.setStyleSheet(self.ui.styleSheet())
+        self.setFont(QFont("Noto Sans KR", 10))

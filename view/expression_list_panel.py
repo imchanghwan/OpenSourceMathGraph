@@ -11,28 +11,28 @@ class ExpressionListPanel(QWidget):
     color_changed = Signal(str, QColor)         # (id, color)
     visible_changed = Signal(str, bool)         # (id, visible)
 
-    def __init__(self):
+    def __init__(self, add_button: QPushButton = None, layout: QVBoxLayout = None):
         super().__init__()
         
         self.items: dict[str, ExpressionItemWidget] = {} # id -> widget
 
-        # 레이아웃, 추가 버튼
-        self.layout = QVBoxLayout()
-        self.add_button = QPushButton("수식 추가")
+        # .ui에서 받은 버튼/레이아웃이 있으면 재사용
+        self.layout = layout or QVBoxLayout()
+        self.add_button = add_button or QPushButton("식 추가")
 
-        self.layout.addWidget(self.add_button)
-        self.layout.addStretch()  # 아래쪽 남는 공간 밀기
-        
-        self.setLayout(self.layout)
+        if layout is None:
+            self.layout.addWidget(self.add_button)
+            self.layout.addStretch()  # 아래쪽 남는 공간 밀기
+            self.setLayout(self.layout)
 
         self.add_button.clicked.connect(self.add_expression_item)
 
-        # 초기 수식 아이템 하나 추가
+        # 초기 식 하나 추가
         self.add_expression_item()
 
     def add_expression_item(self):
         item_id = str(uuid.uuid4())
-        widget = ExpressionItemWidget()  # item_id 제거
+        widget = ExpressionItemWidget()
         self.items[item_id] = widget
         
         self.layout.insertWidget(self.layout.count() - 1, widget)

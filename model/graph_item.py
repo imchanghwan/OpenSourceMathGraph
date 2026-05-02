@@ -21,14 +21,16 @@ class GraphItem:
         self.width = width
         self.line_style = line_style
 
-    def update_from_text(self, text: str):
+    def update_from_text(self, text: str, x_min=-10, x_max=10, y_min=-10, y_max=10):
         self.raw_text = text
 
         try:
             self.expr = parse_expression(text)
-            self.xs, self.ys = build_graph_data(self.expr)
+            self.xs, self.ys = build_graph_data(self.expr, x_min, x_max, y_min, y_max)
             self.is_valid = True
-        except ParseError:
+        except ParseError as e:
             self.is_valid = False
-        except BuildError:
+            # raise ParseError(f"수식 파싱 실패: '{text}'", original=e)
+        except BuildError as e:
             self.is_valid = False
+            raise BuildError(f"그래프 데이터 생성 실패: '{text}'", original=e)

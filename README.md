@@ -1,7 +1,5 @@
 # OpenSourceMathGraph
 
----
-
 코드파일 + 빌드파일(exe)
 
 

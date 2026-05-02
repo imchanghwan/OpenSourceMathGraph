@@ -12,7 +12,7 @@
 
 색상, 수식, 삭제, 표시 기능
 
-
+```
 그래프 패널 마우스 조작 가능
 
 줌 인/아웃 : 휠
@@ -20,6 +20,7 @@
 이동 : 클릭 후 드래그
 
 x, y 축 스케일 조정 : 왼쪽, 하단에 마우스 커서 두고 휠
+```
 
 ---
 
@@ -52,27 +53,3 @@ GraphItem          GraphPanel
 | `GraphController` | id로 GraphItem 관리, 중재자 |
 | `GraphItem` | 수식 파싱 + x/y 계산, UI 완전 무관 |
 | `GraphPanel` | id 기반 curve 관리, 렌더링 |
-
-### Signal 흐름 요약
-
-```
-# 추가
-add_button.clicked → add_expression_item() → item_added(id) → on_item_added(id)
-
-# 수식 변경
-textChanged → text_changed(text) → expression_changed(id, text) → on_expression_changed(id, text)
-                                                                  → update_from_text()
-                                                                  → update_plot() or remove_plot()
-
-# 색상 변경
-color_button → color_changed(color) → color_changed(id, color) → on_color_changed(id, color)
-                                                                 → apply_style()
-
-# 가시성
-checkbox → visible_changed(bool) → visible_changed(id, bool) → on_visible_changed(id, bool)
-                                                               → set_visible()
-
-# 삭제
-delete_button → delete_requested() → remove_expression_item(id) → item_removed(id) → on_item_removed(id)
-                                   → deleteLater()                                  → remove_plot()
-```

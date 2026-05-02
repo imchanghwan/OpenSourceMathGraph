@@ -34,4 +34,4 @@ jobs:
         with:
           name: MathGraph-Windows
           path: dist/MathGraph.exe
-          retention-days: 7          # 7일간 다운로드 가능
+          retention-days: 15          # 15일간 다운로드 가능

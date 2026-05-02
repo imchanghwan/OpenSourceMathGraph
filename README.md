@@ -30,7 +30,7 @@ x, y 축 스케일 조정 : 왼쪽, 하단에 마우스 커서 두고 휠
 
 ```
 ExpressionItemWidget
-    ↓ Signal (id 없이 데이터만)
+    ↓ Signal (데이터만)
 ExpressionListPanel
     ↓ Signal (id + 데이터)
 MainWindow

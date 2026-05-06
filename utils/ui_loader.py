@@ -12,7 +12,7 @@ class UILoader:
     def load(self) -> QMainWindow:
         loader = QUiLoader()
         ui_file = QFile(self.get_resource_path(self.ui_file))
-
+        
         if not ui_file.open(QIODevice.OpenModeFlag.ReadOnly):
             raise RuntimeError(f"UI 파일을 열 수 없습니다: {ui_file.errorString()}")
 
@@ -30,6 +30,6 @@ class UILoader:
             base = sys._MEIPASS
         else:
             # 일반 python 실행 시 → 프로젝트 루트 기준
-            base = os.path.dirname(os.path.abspath(__file__))
+            base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         
         return os.path.join(base, relative_path)

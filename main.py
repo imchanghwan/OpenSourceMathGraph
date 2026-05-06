@@ -5,6 +5,8 @@ from PySide6.QtCore import QFile
 from PySide6.QtWidgets import QApplication
 from utils.ui_loader import UILoader
 from view.main_window import MainWindow
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 def main() -> int:

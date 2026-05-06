@@ -1,5 +1,12 @@
 # OpenSourceMathGraph
 
+
+코드 실행 방법
+pip install -r requirements.txt
+python main.py
+
+---
+
 코드파일 + 빌드파일(exe)
 
 

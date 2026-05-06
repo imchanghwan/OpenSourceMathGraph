@@ -2,7 +2,9 @@
 
 
 코드 실행 방법
+
 pip install -r requirements.txt
+
 python main.py
 
 ---
